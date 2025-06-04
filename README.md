@@ -3,6 +3,7 @@
 This site contains small browser games built with HTML and JavaScript. Currently it includes:
 
 - **Guess the Number**: try to guess a random number with an attempt counter and best score.
+
 - **Reaction Time Test**: start by clicking the red box and then hit it again as soon as it turns green. Your score is judged from 70ms (best) to over 250ms (worst).
 
 More games may be added over time.
