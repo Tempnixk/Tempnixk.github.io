@@ -1,7 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Guess the Number Game</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; text-align: center; }
+  input { margin: 10px; padding: 8px; }
+</style>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<h1>Guess the Number!</h1>
+<p>I'm thinking of a number between 1 and 100.</p>
+<input type="number" id="guess" />
+<button onclick="makeGuess()">Guess</button>
+<p id="result"></p>
+<script>
+  let number = Math.floor(Math.random() * 100) + 1;
+  function makeGuess() {
+    const guess = parseInt(document.getElementById('guess').value, 10);
+    if (!guess) {
+      document.getElementById('result').textContent = 'Please enter a number.';
+      return;
+    }
+    if (guess === number) {
+      document.getElementById('result').textContent = 'Correct! Refresh to play again.';
+    } else if (guess < number) {
+      document.getElementById('result').textContent = 'Too low! Try again.';
+    } else {
+      document.getElementById('result').textContent = 'Too high! Try again.';
+    }
+  }
+</script>
 </body>
 </html>
