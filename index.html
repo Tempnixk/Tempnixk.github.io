@@ -20,8 +20,11 @@
     color: #fff;
     user-select: none;
   }
-  
+  #fps-canvas { cursor: crosshair; }
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/examples/js/controls/PointerLockControls.js"></script>
 </head>
 <body>
 <h1>Mini Games</h1>
@@ -50,6 +53,24 @@
   <div id="reaction-box">Start</div>
   <p id="reaction-result"></p>
 </section>
+
+
+<section id="fps-game" class="game">
+  <h2>Simple FPS</h2>
+  <p>Move the mouse to aim and click to shoot the targets.</p>
+  <canvas id="fps-canvas" width="480" height="300" style="border:1px solid #ddd"></canvas>
+  <p id="fps-score"></p>
+  <button id="fps-start">Start</button>
+</section>
+
+<section id="fps3d-game" class="game">
+  <h2>3D FPS</h2>
+  <p>Click the canvas to lock the pointer. Move with WASD and shoot the cubes.</p>
+  <div id="fps3d-container" style="width:480px;height:300px;margin:0 auto;"></div>
+  <p id="fps3d-score"></p>
+  <button id="fps3d-start">Start</button>
+</section>
+
 
 <script>
   let number = Math.floor(Math.random() * 100) + 1;
@@ -217,6 +238,158 @@
       box.textContent = 'Start';
       clearTimeout(reactionTimeout);
       reactionStart = 0;
+    }
+  });
+
+  // Simple FPS Game
+  const fpsCanvas = document.getElementById('fps-canvas');
+  const fctx = fpsCanvas.getContext('2d');
+  const crosshair = { x: fpsCanvas.width / 2, y: fpsCanvas.height / 2 };
+  let fpsTargets = [];
+  let fpsScore = 0;
+  let fpsRunning = false;
+  let spawnTimer;
+
+  fpsCanvas.addEventListener('mousemove', e => {
+    const rect = fpsCanvas.getBoundingClientRect();
+    crosshair.x = e.clientX - rect.left;
+    crosshair.y = e.clientY - rect.top;
+  });
+
+  fpsCanvas.addEventListener('click', () => {
+    if (!fpsRunning) return;
+    fpsTargets = fpsTargets.filter(t => {
+      const dx = crosshair.x - t.x;
+      const dy = crosshair.y - t.y;
+      if (Math.hypot(dx, dy) < t.r) {
+        fpsScore++;
+        document.getElementById('fps-score').textContent = `Score: ${fpsScore}`;
+        return false;
+      }
+      return true;
+    });
+  });
+
+  function spawnTarget() {
+    fpsTargets.push({
+      x: Math.random() * (fpsCanvas.width - 40) + 20,
+      y: Math.random() * (fpsCanvas.height - 40) + 20,
+      r: 15
+    });
+  }
+
+  function drawFPS() {
+    fctx.clearRect(0, 0, fpsCanvas.width, fpsCanvas.height);
+
+    fctx.fillStyle = 'green';
+    fpsTargets.forEach(t => {
+      fctx.beginPath();
+      fctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+      fctx.fill();
+    });
+
+    fctx.strokeStyle = '#000';
+    fctx.beginPath();
+    fctx.moveTo(crosshair.x - 10, crosshair.y);
+    fctx.lineTo(crosshair.x + 10, crosshair.y);
+    fctx.moveTo(crosshair.x, crosshair.y - 10);
+    fctx.lineTo(crosshair.x, crosshair.y + 10);
+    fctx.stroke();
+
+    requestAnimationFrame(drawFPS);
+  }
+
+  function endFPS() {
+    fpsRunning = false;
+    clearInterval(spawnTimer);
+    document.getElementById('fps-score').textContent = `Final Score: ${fpsScore}`;
+  }
+
+  function startFPS() {
+    fpsScore = 0;
+    fpsTargets = [];
+    fpsRunning = true;
+    document.getElementById('fps-score').textContent = 'Score: 0';
+    spawnTimer = setInterval(spawnTarget, 800);
+    setTimeout(endFPS, 30000); // 30 seconds
+  }
+
+  document.getElementById('fps-start').addEventListener('click', () => {
+    if (!fpsRunning) startFPS();
+  });
+
+  drawFPS();
+
+  // 3D FPS Game
+  let renderer3d, scene3d, camera3d, controls3d;
+  let cubes = [];
+  let score3d = 0;
+  let game3dRunning = false;
+
+  function init3d() {
+    scene3d = new THREE.Scene();
+    camera3d = new THREE.PerspectiveCamera(75, 480 / 300, 0.1, 1000);
+    renderer3d = new THREE.WebGLRenderer();
+    renderer3d.setSize(480, 300);
+    document.getElementById('fps3d-container').appendChild(renderer3d.domElement);
+
+    controls3d = new THREE.PointerLockControls(camera3d, renderer3d.domElement);
+    scene3d.add(controls3d.getObject());
+    camera3d.position.y = 1.6;
+
+    const floorGeo = new THREE.PlaneGeometry(50, 50);
+    const floorMat = new THREE.MeshBasicMaterial({ color: 0x808080 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    scene3d.add(floor);
+
+    spawnCubes();
+    animate3d();
+  }
+
+  function spawnCubes() {
+    cubes.forEach(c => scene3d.remove(c));
+    cubes = [];
+    for (let i = 0; i < 5; i++) {
+      const geo = new THREE.BoxGeometry(1, 1, 1);
+      const mat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const cube = new THREE.Mesh(geo, mat);
+      cube.position.set(Math.random() * 20 - 10, 0.5, Math.random() * -20);
+      cubes.push(cube);
+      scene3d.add(cube);
+    }
+  }
+
+  function animate3d() {
+    requestAnimationFrame(animate3d);
+    if (game3dRunning) controls3d.update(0.01);
+    renderer3d.render(scene3d, camera3d);
+  }
+
+  function shoot3d() {
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera({ x: 0, y: 0 }, camera3d);
+    const hit = raycaster.intersectObjects(cubes)[0];
+    if (hit) {
+      scene3d.remove(hit.object);
+      cubes.splice(cubes.indexOf(hit.object), 1);
+      score3d++;
+      document.getElementById('fps3d-score').textContent = `Score: ${score3d}`;
+      if (cubes.length === 0) spawnCubes();
+    }
+  }
+
+  document.getElementById('fps3d-start').addEventListener('click', () => {
+    if (!renderer3d) init3d();
+    score3d = 0;
+    document.getElementById('fps3d-score').textContent = 'Score: 0';
+    game3dRunning = true;
+    controls3d.lock();
+  });
+
+  document.addEventListener('click', e => {
+    if (game3dRunning && document.pointerLockElement === renderer3d.domElement) {
+      shoot3d();
     }
   });
 
