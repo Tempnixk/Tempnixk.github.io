@@ -21,6 +21,7 @@
     user-select: none;
   }
   #fps-canvas { cursor: crosshair; }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/examples/js/controls/PointerLockControls.js"></script>
@@ -53,6 +54,7 @@
   <p id="reaction-result"></p>
 </section>
 
+
 <section id="fps-game" class="game">
   <h2>Simple FPS</h2>
   <p>Move the mouse to aim and click to shoot the targets.</p>
@@ -68,6 +70,7 @@
   <p id="fps3d-score"></p>
   <button id="fps3d-start">Start</button>
 </section>
+
 
 <script>
   let number = Math.floor(Math.random() * 100) + 1;
@@ -211,6 +214,7 @@
     const delay = Math.random() * 2000 + 1000; // 1-3 seconds
     reactionTimeout = setTimeout(() => {
       state = 'active';
+
       box.style.backgroundColor = 'green';
       reactionStart = Date.now();
     }, delay);
@@ -388,6 +392,7 @@
       shoot3d();
     }
   });
+
 </script>
 </body>
 </html>
