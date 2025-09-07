@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>숫자 맞히기 게임</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; text-align: center; }
+  h1, h2 { color: #333; }
+  input, button { margin: 10px; padding: 8px; }
+  .game-section { border: 1px solid #ddd; padding: 20px; margin-top: 20px; border-radius: 8px; }
+  #result, #attempts, #best { font-size: 1.1rem; font-weight: bold; }
+  .back-button { margin-top: 20px; padding: 10px 20px; background-color: #555; color: white; text-decoration: none; border-radius: 5px; }
+  .back-button:hover { background-color: #333; }
+  <a href="index.html">메인으로 돌아가기</a>
+</style>
+</head>
+<body>
+<h1>숫자 맞히기 게임</h1>
+
+<section class="game-section">
+  <h2>숫자를 맞춰보세요</h2>
+  <p>1부터 100까지의 숫자 중 하나를 생각하고 있어요.</p>
+  <input type="number" id="guess" placeholder="숫자를 입력하세요" />
+  <button onclick="makeGuess()">추측</button>
+  <button onclick="resetGame()">다시 시작</button>
+  <p id="result"></p>
+  <p id="attempts"></p>
+  <p id="best"></p>
+</section>
+
+<a href="index.html" class="back-button">메인으로 돌아가기</a>
+
+<script>
+  let number = Math.floor(Math.random() * 100) + 1;
+  let attempts = 0;
+  const bestScore = localStorage.getItem('guessingBestScore');
+
+  if (bestScore) {
+    document.getElementById('best').textContent = `최고 기록: ${bestScore}번`;
+  }
+
+  function updateAttempts() {
+    document.getElementById('attempts').textContent = `시도 횟수: ${attempts}`;
+  }
+
+  function makeGuess() {
+    const guess = parseInt(document.getElementById('guess').value, 10);
+    if (isNaN(guess)) {
+      document.getElementById('result').textContent = '숫자를 입력해주세요.';
+      return;
+    }
+    attempts++;
+    updateAttempts();
+
+    if (guess === number) {
+      document.getElementById('result').textContent = '정답입니다! 🎉';
+      const currentBest = localStorage.getItem('guessingBestScore');
+      if (!currentBest || attempts < currentBest) {
+        localStorage.setItem('guessingBestScore', attempts);
+        document.getElementById('best').textContent = `최고 기록: ${attempts}번`;
+      }
+    } else if (guess < number) {
+      document.getElementById('result').textContent = '너무 낮아요! 다시 시도해보세요.';
+    } else {
+      document.getElementById('result').textContent = '너무 높아요! 다시 시도해보세요.';
+    }
+  }
+
+  function resetGame() {
+    number = Math.floor(Math.random() * 100) + 1;
+    attempts = 0;
+    updateAttempts();
+    document.getElementById('result').textContent = '';
+    document.getElementById('guess').value = '';
+  }
+
+  updateAttempts();
+</script>
+</body>
+</html>
