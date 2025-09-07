@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>간단한 FPS 게임</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; text-align: center; }
+  h1 { color: #333; }
+  canvas { border: 1px solid #ddd; cursor: crosshair; background-color: #f0f0f0; }
+  #fps-score { font-size: 1.2rem; font-weight: bold; margin-top: 10px; }
+  #fps-start { padding: 10px 20px; font-size: 1rem; cursor: pointer; }
+  .back-button { margin-top: 20px; padding: 10px 20px; background-color: #555; color: white; text-decoration: none; border-radius: 5px; }
+  .back-button:hover { background-color: #333; }
+</style>
+</head>
+<body>
+<h1>간단한 FPS 게임</h1>
+
+<p>마우스를 움직여 조준하고 클릭하여 타겟을 맞추세요. 게임은 30초간 진행됩니다.</p>
+<canvas id="fps-canvas" width="480" height="300"></canvas>
+<p id="fps-score">점수: 0</p>
+<button id="fps-start">게임 시작</button>
+
+<a href="index.html" class="back-button">메인으로 돌아가기</a>
+
+<script>
+  const fpsCanvas = document.getElementById('fps-canvas');
+  const fctx = fpsCanvas.getContext('2d');
+  const crosshair = { x: fpsCanvas.width / 2, y: fpsCanvas.height / 2 };
+  let fpsTargets = [];
+  let fpsScore = 0;
+  let fpsRunning = false;
+  let spawnTimer;
+
+  fpsCanvas.addEventListener('mousemove', e => {
+    const rect = fpsCanvas.getBoundingClientRect();
+    crosshair.x = e.clientX - rect.left;
+    crosshair.y = e.clientY - rect.top;
+  });
+
+  fpsCanvas.addEventListener('click', () => {
+    if (!fpsRunning) return;
+    fpsTargets = fpsTargets.filter(t => {
+      const dx = crosshair.x - t.x;
+      const dy = crosshair.y - t.y;
+      if (Math.hypot(dx, dy) < t.r) {
+        fpsScore++;
+        document.getElementById('fps-score').textContent = `점수: ${fpsScore}`;
+        return false;
+      }
+      return true;
+    });
+  });
+
+  function spawnTarget() {
+    fpsTargets.push({
+      x: Math.random() * (fpsCanvas.width - 40) + 20,
+      y: Math.random() * (fpsCanvas.height - 40) + 20,
+      r: 15
+    });
+  }
+
+  function drawFPS() {
+    fctx.clearRect(0, 0, fpsCanvas.width, fpsCanvas.height);
+
+    fctx.fillStyle = 'green';
+    fpsTargets.forEach(t => {
+      fctx.beginPath();
+      fctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+      fctx.fill();
+    });
+
+    fctx.strokeStyle = '#000';
+    fctx.beginPath();
+    fctx.moveTo(crosshair.x - 10, crosshair.y);
+    fctx.lineTo(crosshair.x + 10, crosshair.y);
+    fctx.moveTo(crosshair.x, crosshair.y - 10);
+    fctx.lineTo(crosshair.x, crosshair.y + 10);
+    fctx.stroke();
+
+    if (fpsRunning) {
+      requestAnimationFrame(drawFPS);
+    }
+  }
+
+  function endFPS() {
+    fpsRunning = false;
+    clearInterval(spawnTimer);
+    document.getElementById('fps-score').textContent = `최종 점수: ${fpsScore}`;
+    document.getElementById('fps-start').textContent = '다시 시작';
+  }
+
+  function startFPS() {
+    fpsScore = 0;
+    fpsTargets = [];
+    fpsRunning = true;
+    document.getElementById('fps-score').textContent = '점수: 0';
+    document.getElementById('fps-start').textContent = '게임 중...';
+    spawnTimer = setInterval(spawnTarget, 800);
+    setTimeout(endFPS, 30000); // 30 seconds
+    drawFPS();
+  }
+
+  document.getElementById('fps-start').addEventListener('click', () => {
+    if (!fpsRunning) startFPS();
+  });
+</script>
+</body>
+</html>
