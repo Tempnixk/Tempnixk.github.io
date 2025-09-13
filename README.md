@@ -10,3 +10,4 @@ This site contains small browser games built with HTML and JavaScript. Currently
 
 
 More games may be added over time.
+https://tempnixk.github.io./
