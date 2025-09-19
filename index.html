@@ -6,6 +6,26 @@
     <title>Unity Web Player | Rock Game</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+      #game-instructions {
+        max-width: 960px;   /* 게임 캔버스와 폭 맞추기 */
+        margin: 30px auto;  /* 가운데 정렬 + 위쪽 여백 */
+        padding: 20px;
+        background: #f8f8f8;
+        color: #333;
+        font-family: sans-serif;
+        border-radius: 10px;
+        line-height: 1.6;
+        font-size: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      #game-instructions h2 {
+        margin-top: 0;
+        font-size: 18px;
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -22,6 +42,16 @@
         <div id="unity-fullscreen-button"></div>
         <div id="unity-build-title">Rock Game</div>
       </div>
+    </div>
+    <!-- 🎮 게임 방법 안내 박스 -->
+    <div id="game-instructions">
+      <h2>게임 방법</h2>
+        <ul>
+          <li><strong>선 긋기:</strong> 돌들을 하나의 끊어지지 않는 선으로 연결하세요.</li>
+          <li><strong>각도 제한:</strong> 선은 0도, 45도, 90도 각도로만 그릴 수 있습니다.</li>
+          <li><strong>돌 제거:</strong> 선의 시작점과 끝점 돌의 합이 중간에 있는 모든 돌들의 합과 같으면 돌들이 제거됩니다.</li>
+          <li><strong>시간 제한:</strong> 2분 안에 퍼즐을 풀어야 합니다.</li>
+        </ul>
     </div>
     <script>
       var canvas = document.querySelector("#unity-canvas");
